@@ -37,7 +37,35 @@
     1. 編集したいところだけ入力する．
     2. もし値が入力されればその値で元の値を上書きし，そうでなければ（＝値が NULL であれば）値は変更しない．
 
-## その他付け足したい機能
-- hash tag
-- 検索機能
-- hash tag 毎のページ
+   ※ date - end_time: NULL は受け付けられない．何かしら値を入れないといけない．
+
+   ※ memo について
+    - 編集画面の時，登録したい文章をまた 1 から打ち直す感じになる..?
+
+## 動作様子
+### 初回動作時
+- 起動時の画面：[new](https://github.com/user-attachments/assets/354909f8-0ec5-405e-b702-11193595affd)
+
+### スケジュール入力
+- 入力操作：追加したいスケジュールを記入　→　Addにチェック　→　Executeボタンを押す
+
+- 入力時の画面：
+[before_adding_entry](https://github.com/user-attachments/assets/e14d23b0-e00b-4ff6-9f04-2cc5c21a4351)
+
+- スケジュール入力後: スケジュールが表示される
+[after_adding_entry](https://github.com/user-attachments/assets/59623cb5-325a-43f7-9656-3420a43e4beb)
+
+- 複数のスケジュール入力後: スケジュールが時系列順に表示される
+[after_adding_entry_sort](https://github.com/user-attachments/assets/cc2df34a-abae-4e15-bb33-0afac5fd64b6)
+
+### スケジュール検索
+- 検索操作：検索したい日付を記入　→　Searchにチェック　→　Executeボタンを押す
+
+- 検索時の画面：
+[search_schedule](https://github.com/user-attachments/assets/1b6b7cd8-7537-4016-8747-7a176bf746a6)
+
+- スケジュールの検索後：検索した日付のスケジュールが表示される
+[after_search_schedule](https://github.com/user-attachments/assets/89640842-71a3-4cf7-b850-a018a7393b72)
+
+<!-- - エラーメッセージ: 正しくない入力を受け付けた時
+[error_message](https://github.com/Serina0804/charender_data_system/assets/126635893/359770a2-6e86-41f3-926e-371040c6cdc7) -->

@@ -1,96 +1,112 @@
-package main
+<!DOCTYPE html>
+<html>
 
-import (
-	"fmt"
-	"html/template"
-	"net/http"
-	"sort"
-	"strconv"
+<head>
+    <title>Input form</title>
+    <style>
+        .inline {
+            display: inline-block;
+            margin-right: 10px;
+        }
 
-	"github.com/gorilla/mux"
-)
+        .time-input {
+            width: 30px;
+            text-align: center;
+        }
+    </style>
+</head>
 
-type Schedule struct {
-	Id        int
-	Date      int
-	Day       string
-	EventName string
-	StartTime int
-	EndTime   int
-	Memo      string
-	Record    string
-}
+<body>
+    <h1>input form</h1>
 
-func MakeId(date int, start_time int) int {
-	str_id := strconv.Itoa(date) + strconv.Itoa(start_time)
+    <!-- エラーメッセージ表示 -->
+    {{ if .ErrorMsgs }}
+    <div style="color: red;">
+        <ul>
+            {{ range .ErrorMsgs }}
+            <li>{{ . }}</li>
+            {{ end }}
+        </ul>
+    </div>
+    {{ end }}
 
-	id, err := strconv.Atoi(str_id)
-	if err != nil {
-		fmt.Printf("cannot make id\n")
-	}
-	return id
-}
+    <!-- フォーム -->
+    <form id="dataForm" action="/" method="post">
+        <div class="inline">
+            <label for="month">month / day: </label>
+            <input type="text" id="month" name="month">
+            <label for="slash">  /  </label>
+            <input type="text" id="date" name="date"> <br><br>
+            <label for="day">day of the week: </label>
+            <input type="text" id="day" name="day">
+        </div><br><br>
+        <label for="event">event: </label>
+        <input type="text" id="event" name="event"><br><br>
 
-var scheduleList []*Schedule
+        <div class="inline">
+            <label for="start_hour">start time: </label>
+            <input type="text" id="start_hour" name="start_hour" class="time-input">
+            <label for="start_min">start min: </label>
+            <input type="text" id="start_min" name="start_min" class="time-input">
+        </div><br><br>
 
-func mainHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl := template.Must(template.ParseFiles("index.html"))
 
-	if r.Method == "POST" {
+        <div class="inline">
+            <label for="end_hour">end time: </label>
+            <input type="text" id="end_hour" name="end_hour" class="time-input">
+            <label for="end_min">end min: </label>
+            <input type="text" id="end_min" name="end_min" class="time-input">
+        </div><br><br>
 
-		// get input
-		str_date := r.FormValue("date") // ex. 20240409
-		day := r.FormValue("day")       // mon, tue, wed, thr, fri
-		event_name := r.FormValue("event")
-		str_start_time := r.FormValue("start_time")
-		str_end_time := r.FormValue("end_time")
-		memo := r.FormValue("memo")
-		record := r.FormValue("record")
+        <label for="memo">memo: </label>
+        <input type="text" id="memo" name="memo"><br><br>
+        <label for="record">record: </label>
+        <input type="text" id="record" name="record"><br><br><br>
+        <!-- <label for="method">Add or Search: </label>
+        <input type="text" id="event" name="event"><br> -->
+        <legend>Pease select Add or Search.</legend><br>
+        <input type="radio" id="add" name="action" value="add" />
+        <label for="add">Add</label>
+        <input type="radio" id="search" name="action" value="search" />
+        <label for="search">Search</label><br><br>
+        <button type="submit">Execute</button><br><br>
+    </form>
 
-		// check input type
-		date, err := strconv.Atoi(str_date)
-		if err != nil {
-			fmt.Printf("date must be number\n")
-		}
-		start_time, err := strconv.Atoi(str_start_time)
-		if err != nil {
-			fmt.Printf("start_time must be number\n")
-		}
-		end_time, err := strconv.Atoi(str_end_time)
-		if err != nil {
-			fmt.Printf("end_time must be number\n")
-		}
 
-		scheduleList = append(scheduleList, &Schedule{
-			Id:        MakeId(date, start_time),
-			Date:      date,
-			Day:       day,
-			EventName: event_name,
-			StartTime: start_time,
-			EndTime:   end_time,
-			Memo:      memo,
-			Record:    record,
-		})
+    <!-- テーブル -->
+    <table id="dataTable" border="1">
+        <thead>
+            <tr>
+                <th>month</th>
+                <th>date</th>
+                <th>day of the week</th>
+                <th>event</th>
+                <th>start hour</th>
+                <th>start min</th>
+                <th>end hour</th>
+                <th>end min</th>
+                <th>memo</th>
+                <th>record</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ range .ScheduleList}}
+            <tr>
+                <td>{{ .Month }}</td>
+                <td>{{ .Date }}</td>
+                <td>{{ .Day }}</td>
+                <td>{{ .EventName}}</td>
+                <td>{{ .StartHour }}</td>
+                <td>{{ .StartMin }}</td>
+                <td>{{ .EndHour }}</td>
+                <td>{{ .EndMin }}</td>
+                <td>{{ .Memo }}</td>
+                <td>{{ .Record }}</td>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table>
 
-		sort.SliceStable(scheduleList, func(i, j int) bool {
-			return scheduleList[i].Id < scheduleList[j].Id
-		})
+</body>
 
-		// check sort
-		for i, v := range scheduleList {
-			fmt.Println(i, v)
-			// fmt.Printf("date: %s, day: %s, event_name: %s, start_time: %s, end_time: %s, memo: %s, record: %s\n", str_date, day, event_name, str_start_time, str_end_time, memo, record)
-		}
-	}
-
-	tmpl.Execute(w, scheduleList)
-}
-
-func main() {
-	r := mux.NewRouter()
-	r.HandleFunc("/", mainHandler)
-	// r.HandleFunc("/accept", acceptHandler)
-	http.Handle("/", r)
-	fmt.Println("boot server")
-	http.ListenAndServe(":8080", nil)
-}
+</html>
